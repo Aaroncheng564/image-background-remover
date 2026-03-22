@@ -20,24 +20,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 转换 base64 为 Buffer
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
+    // 创建 FormData
+    const formData = new FormData();
+    const blob = new Blob([imageBuffer], { type: 'image/png' });
+    formData.append('image_file', blob, 'image.png');
+    formData.append('size', 'auto');
+
     // 调用 remove.bg API
     const removeBgResponse = await fetch('https://api.remove.bg/v1.0/removebg', {
       method: 'POST',
       headers: {
         'X-Api-Key': process.env.REMOVE_BG_API_KEY || 'demo',
-        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        image_file_b64: base64Data,
-        size: 'auto',
-      }),
+      body: formData,
     });
 
     if (!removeBgResponse.ok) {
       const errorText = await removeBgResponse.text();
       console.error('Remove.bg API error:', removeBgResponse.status, errorText);
       return NextResponse.json(
-        { error: '背景去除失败，请稍后重试' },
+        { error: `背景去除失败: ${errorText}` },
         { status: removeBgResponse.status }
       );
     }
