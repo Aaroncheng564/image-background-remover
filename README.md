@@ -69,3 +69,4 @@ MIT License
 
 ## Deployment
 This project is automatically deployed to Cloudflare Pages via GitHub Actions.
+
