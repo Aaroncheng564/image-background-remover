@@ -8,7 +8,8 @@ const nextConfig: NextConfig = {
     'localhost:3000',
     'localhost:3001',
   ],
-  output: 'standalone',
+  // Remove 'standalone' for Cloudflare Pages
+  // output: 'standalone',  
 };
 
 export default nextConfig;
