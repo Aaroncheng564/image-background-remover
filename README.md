@@ -66,3 +66,6 @@ npm run dev
 ## 📄 许可证
 
 MIT License
+
+## Deployment
+This project is automatically deployed to Cloudflare Pages via GitHub Actions.
