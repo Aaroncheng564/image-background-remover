@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const runtime = 'edge';
+
 export async function POST(request: NextRequest) {
   try {
     const { image } = await request.json();
@@ -20,12 +22,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 转换 base64 为 Buffer
-    const imageBuffer = Buffer.from(base64Data, 'base64');
+    // 转换 base64 为 Uint8Array
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
 
     // 创建 FormData
     const formData = new FormData();
-    const blob = new Blob([imageBuffer], { type: 'image/png' });
+    const blob = new Blob([bytes], { type: 'image/png' });
     formData.append('image_file', blob, 'image.png');
     formData.append('size', 'auto');
 
@@ -49,8 +55,12 @@ export async function POST(request: NextRequest) {
 
     // 获取处理后的图片并转换为 base64
     const resultBuffer = await removeBgResponse.arrayBuffer();
-    const resultBase64 = Buffer.from(resultBuffer).toString('base64');
-    const resultImage = `data:image/png;base64,${resultBase64}`;
+    const resultBytes = new Uint8Array(resultBuffer);
+    let resultBase64 = '';
+    for (let i = 0; i < resultBytes.length; i++) {
+      resultBase64 += String.fromCharCode(resultBytes[i]);
+    }
+    const resultImage = `data:image/png;base64,${btoa(resultBase64)}`;
 
     return NextResponse.json({ result: resultImage });
   } catch (error) {
